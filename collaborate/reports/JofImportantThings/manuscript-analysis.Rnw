@@ -1,0 +1,91 @@
+% this file runs from manuscript-master
+
+<<preprocess>>=
+# library
+  library(ggplot2)
+  library(xtable)
+# import data
+  dat <- read.csv("input/raw-data.csv", stringsAsFactors=FALSE)
+@
+
+<<outcome>>=
+# define variables and data frame for results
+  myList <- list(vars=c("x", "y"),
+            labs=c("Coolness", "Smarts"))
+  results <- as.data.frame(NULL)
+# loop
+  for (v in 1:length(myList[[1]])) {
+    results[v,1] <- myList[[2]][v]
+    # treatment
+      results[v,2] <- aggregate(dat[myList[[1]]][,v],
+                                by=dat["grp"],
+                                FUN=mean, na.rm=TRUE)[2,2]
+      results[v,3] <- aggregate(dat[myList[[1]]][,v],
+                                by=dat["grp"],
+                                FUN=sd, na.rm=TRUE)[2,2]
+    # control
+      results[v,4] <- aggregate(dat[myList[[1]]][,v],
+                                by=dat["grp"],
+                                FUN=mean, na.rm=TRUE)[1,2]
+      results[v,5] <- aggregate(dat[myList[[1]]][,v],
+                                by=dat["grp"],
+                                FUN=sd, na.rm=TRUE)[1,2]
+  }
+# column names
+  names(results) <- c("variable", "trt.m", "trt.sd", "ctr.m", "ctr.sd")
+# create latex table 
+  t <- xtable(results)
+  digits(t) <- c(0,1,1,1,1,1)
+  f <- "reports/JofImportantThings/output/tbl.tex"
+  print(t,
+        only.contents=TRUE,
+        include.rownames=FALSE,
+        include.colnames=FALSE,
+        hline.after=NULL,
+        type="latex",
+        file=f,
+        sanitize.text.function = identity)
+# n's
+  c.n <- table(dat$grp)[1]
+  t.n <- table(dat$grp)[2]
+@
+
+The overall mean score was \Sexpr{round(mean(dat$x, na.rm=TRUE), 1)}. Group means are listed in Table \ref{tbl}. Figure \ref{fig} shows a histogram.
+
+\begin{table}[H]
+\centering
+  \begin{threeparttable}
+  \caption{My table}
+  \label{tbl}
+  \begin{tabular}{lrrrr}
+  \toprule
+   & \multicolumn{2}{c}{Treatment (n=\Sexpr{t.n})} & \multicolumn{2}{c}{Control (n=\Sexpr{c.n})} \\
+  \cmidrule(lr){2-3} \cmidrule(lr){4-5}
+  Variable & Mean & SD & Mean & SD \\
+  \midrule
+  \input{output/tbl}
+  \bottomrule
+  \end{tabular}
+  \begin{tablenotes}
+  \small
+  \item My notes
+  \end{tablenotes}
+  \end{threeparttable}
+\end{table}
+
+<<plot>>=
+# plot
+  ggplot(dat, aes(x=y, fill=factor(grp))) +
+    geom_histogram(binwidth=1, alpha=0.5, position="identity") +
+    theme(
+      panel.background = element_blank(),
+      panel.grid.major = element_blank(),
+      panel.grid.minor = element_blank()) +
+    scale_x_continuous(limits = c(0, 40))
+@
+
+\begin{figure}[H]
+  \includegraphics{output/plot.pdf}
+  \caption{My figure}
+  \label{fig}
+\end{figure}

@@ -1,0 +1,70 @@
+\documentclass{article}
+\makeatletter
+\renewcommand{\@biblabel}[1]{\quad#1.}
+\makeatother
+\date{}
+\bibliographystyle{plain}
+\usepackage{threeparttable}
+\usepackage{multirow}
+\usepackage{booktabs}
+
+\begin{document}
+
+\begin{flushleft}
+{\Large
+\textbf{My Title}
+}
+\end{flushleft}
+
+<<setup, include=FALSE>>=
+# libraries
+  library(knitr)
+# make sure working directory set to root folder collaborate
+  # setwd("/Users/ericpgreen/Dropbox/Repositories/github/SO/collaborate")
+# normalize path
+  opts_knit$set(self.contained=FALSE, root.dir=normalizePath('../../'))
+  # need to go up 2 levels in this example to get from directory with .rnw to wd
+# chunk options
+  opts_chunk$set(echo=FALSE, fig.path='output/', dev='pdf',
+                 fig.height=4, fig.width=4)
+@
+
+\section{Introduction}
+% do not write in this section...let collaborators write in introduction.docx
+
+<<intro, include=FALSE>>=
+# convert docx to txt
+  system("textutil -convert txt reports/JofImportantThings/sections/introduction.docx")
+# rename txt to tex
+  file.rename("reports/JofImportantThings/sections/introduction.txt", 
+              "reports/JofImportantThings/sections/introduction.tex")
+@
+
+% pull in introduction.tex
+\input{sections/introduction}
+
+\section{Methods}
+<<methods, include=FALSE>>=
+  system("textutil -convert txt reports/JofImportantThings/sections/methods.docx")
+  file.rename("reports/JofImportantThings/sections/methods.txt", 
+              "reports/JofImportantThings/sections/methods.tex")
+@
+
+\input{sections/methods}
+
+\section{Results}
+
+<<analysis, child='manuscript-analysis.Rnw', include=FALSE>>=
+@
+
+\section{Discussion}
+<<discussion, include=FALSE>>=
+  system("textutil -convert txt reports/JofImportantThings/sections/discussion.docx")
+  file.rename("reports/JofImportantThings/sections/discussion.txt", 
+              "reports/JofImportantThings/sections/discussion.tex")
+@
+
+\input{sections/discussion}
+
+\bibliography{myrefs.bib}
+\end{document}

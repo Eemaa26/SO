@@ -1,0 +1,38 @@
+% Knitr child example
+
+<<knitr, include=FALSE>>=
+  library(knitr)
+  opts_knit$set(self.contained=FALSE)
+@
+
+\documentclass{article}
+\begin{document}
+
+% run analysis and reference objects, codeA and codeB, via \Sexpr{} in methods.tex that is included later
+
+% attempt 1: run source file defining codeA object via a child rnw file
+<<pre-results1, child='child.rnw', include=FALSE>>=
+# child1.rnw runs source("codeA.R")
+@
+
+% attempt 2: run source file defining codeB object directly
+<<pre-results2>>=
+  source("codeB.R")
+@
+
+% Methods section from tex file
+\input{methods}
+% in this file we try to grab the two objects codeA and codeB
+% Referencing codeA: \Sexpr{codeA}
+% Referencing codeB: \Sexpr{codeB}
+
+\section*{Results}
+% we know this works: define codeC and reference in the master file
+<<results>>=
+  codeC <- 5
+  print(codeC)
+@
+
+Referencing codeC: \Sexpr{codeC}
+
+\end{document}

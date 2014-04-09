@@ -1,0 +1,6 @@
+% analysis 1
+
+<<myanalysis>>=
+  source("codeA.R")
+@
+
